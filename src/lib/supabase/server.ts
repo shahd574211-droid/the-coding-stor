@@ -2,22 +2,28 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 import { getSupabasePublicEnv, getSupabaseServiceRoleKey } from "./env";
 
-const { url: supabaseUrl } = getSupabasePublicEnv();
-const supabaseServiceKey = getSupabaseServiceRoleKey();
+let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
 
-/** Server-only Supabase client with service role for admin operations (create user, etc.) */
-export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    const { url: supabaseUrl } = getSupabasePublicEnv();
+    const supabaseServiceKey = getSupabaseServiceRoleKey();
+    _supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+  return _supabaseAdmin;
+}
 
 /** Create Supabase Auth user and return its id. Email format: phone@stor-ai.phone */
 export async function createSupabaseUser(
   phoneNormalized: string,
   password: string
 ): Promise<{ userId: string; error: Error | null }> {
+  const supabaseAdmin = getSupabaseAdmin();
   const email = `${phoneNormalized}@stor-ai.phone`;
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
@@ -33,6 +39,7 @@ export async function signInSupabase(
   phoneNormalized: string,
   password: string
 ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number } | { error: Error }> {
+  const supabaseAdmin = getSupabaseAdmin();
   const email = `${phoneNormalized}@stor-ai.phone`;
   const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
   if (error) return { error };
