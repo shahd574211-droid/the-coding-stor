@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* the coding stor — خلفية أصفر اللوجو #FFE210 | نيلي #404079 | أخضر #28AC28 */
+@layer base {
+  :root {
+    /* خلفية: أصفر نفس اللوجو #FFE210 */
+    --background: 52 100% 53%;
+    --foreground: 240 31% 18%;
+    /* كروت: أبيض / أصفر فاتح جداً */
+    --card: 0 0% 100%;
+    --card-foreground: 240 31% 18%;
+    /* primary: نيلي #404079 */
+    --primary: 240 31% 36%;
+    --primary-foreground: 0 0% 100%;
+    /* secondary: أصفر فاتح */
+    --secondary: 52 100% 94%;
+    --secondary-foreground: 240 31% 25%;
+    --muted: 52 80% 92%;
+    --muted-foreground: 240 15% 40%;
+    /* accent: أخضر #28AC28 */
+    --accent: 120 62% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 52 60% 45%;
+    --input: 52 50% 88%;
+    --ring: 240 31% 36%;
+    --radius: 0.5rem;
+    --brand-indigo: 240 31% 36%;
+    --brand-green: 120 62% 42%;
+    --brand-yellow: 52 100% 53%;
+  }
+
+  /* وضع الليل (night) — يبقى الشكل الداكن كما هو */
+  .dark {
+    --background: 52 100% 18%;
+    --foreground: 52 30% 95%;
+    --card: 52 80% 22%;
+    --card-foreground: 52 30% 95%;
+    --primary: 240 31% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 52 70% 28%;
+    --secondary-foreground: 52 30% 95%;
+    --muted: 52 60% 25%;
+    --muted-foreground: 52 20% 70%;
+    --accent: 120 62% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 52 50% 35%;
+    --input: 52 50% 30%;
+    --ring: 52 100% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  /* Storefront: الخلفية الديناميكية تغطي الصفحة — لا نطبق لون body فوقها */
+  body:has([data-theme="dynamic"]) {
+    background: #0c0c12;
+  }
+  /* وضع النهار (light) — العكس: خلفية صفراء وزجاج فاتح */
+  html.light body:has([data-theme="dynamic"]) {
+    background: hsl(var(--background));
+  }
+
+  /* اللوقو في الوضع الداكن — وضوح وجودة ممتازة */
+  html.dark .logo-wrap img,
+  [data-theme="dynamic"] .logo-wrap img {
+    filter: brightness(1.04) contrast(1.06);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/* التأثير الزجاجي (Glassmorphism) */
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 border border-white/30 shadow-lg shadow-black/5;
+  }
+  .glass-dark {
+    @apply backdrop-blur-xl bg-black/10 border border-white/10 shadow-xl shadow-black/10;
+  }
+  .glass-card {
+    @apply backdrop-blur-md bg-white/80 border border-white/40 shadow-xl shadow-black/5 rounded-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:bg-white/90;
+  }
+  .glass-nav {
+    @apply backdrop-blur-xl bg-white/20 border-b border-white/20 shadow-lg shadow-black/5;
+  }
+
+  /* Dynamic background (ColorBends) — glass on dark with contrast */
+  [data-theme="dynamic"] .glass-on-dark {
+    @apply backdrop-blur-xl bg-black/30 border border-white/15 text-white shadow-xl shadow-black/20;
+  }
+  [data-theme="dynamic"] .glass-card-on-dark {
+    @apply backdrop-blur-md bg-black/25 border border-white/20 text-white shadow-xl shadow-black/20 rounded-xl transition-all duration-300 hover:bg-black/35 hover:scale-[1.02] hover:border-white/30;
+  }
+  [data-theme="dynamic"] .glass-nav-on-dark {
+    @apply backdrop-blur-xl bg-black/25 border-b border-white/15 shadow-lg shadow-black/20;
+  }
+  [data-theme="dynamic"] .glass-footer-on-dark {
+    @apply backdrop-blur-xl bg-black/25 border-t border-white/10 text-white/90;
+  }
+  [data-theme="dynamic"] .text-on-dark {
+    @apply text-white;
+  }
+  [data-theme="dynamic"] .text-muted-on-dark {
+    @apply text-white/75;
+  }
+  [data-theme="dynamic"] .text-primary-on-dark {
+    @apply text-[#FFE210];
+  }
+
+  /* Light mode overrides for storefront (dynamic) — light glass + dark text */
+  html.light [data-theme="dynamic"] .glass-on-dark {
+    @apply backdrop-blur-xl bg-white/70 border border-white/30 text-foreground shadow-lg shadow-black/5;
+  }
+  html.light [data-theme="dynamic"] .glass-card-on-dark {
+    @apply backdrop-blur-md bg-white/80 border border-white/40 text-foreground shadow-xl shadow-black/5 rounded-xl transition-all duration-300 hover:bg-white/90 hover:scale-[1.02] hover:border-white/50;
+  }
+  html.light [data-theme="dynamic"] .glass-nav-on-dark {
+    @apply backdrop-blur-xl bg-white/30 border-b border-white/30 shadow-lg shadow-black/5;
+  }
+  html.light [data-theme="dynamic"] .glass-footer-on-dark {
+    @apply backdrop-blur-xl bg-white/20 border-t border-white/20 text-foreground/90;
+  }
+  html.light [data-theme="dynamic"] .text-on-dark {
+    @apply text-foreground;
+  }
+  html.light [data-theme="dynamic"] .text-muted-on-dark {
+    @apply text-muted-foreground;
+  }
+  html.light [data-theme="dynamic"] .text-primary-on-dark {
+    @apply text-primary;
+  }
+  html.light [data-theme="dynamic"] .glass-nav-on-dark a,
+  html.light [data-theme="dynamic"] .glass-nav-on-dark button {
+    @apply text-foreground hover:text-foreground/90;
+  }
+  html.light [data-theme="dynamic"] .glass-footer-on-dark,
+  html.light [data-theme="dynamic"] .glass-footer-on-dark * {
+    @apply text-foreground/80;
+  }
+  html.light [data-theme="dynamic"] .footer-divider {
+    @apply border-border;
+  }
+
+  /* تموج الخلفية — CSS فقط (يعمل دائماً بدون WebGL) */
+  .bg-wave-layer {
+    background: 
+      radial-gradient(ellipse 90% 70% at 30% 30%, rgba(64, 64, 121, 0.5), transparent 50%),
+      radial-gradient(ellipse 80% 60% at 70% 20%, rgba(40, 172, 40, 0.45), transparent 50%),
+      radial-gradient(ellipse 85% 65% at 50% 70%, rgba(255, 226, 16, 0.3), transparent 50%);
+    animation: bg-wave-drift 20s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes bg-wave-drift {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+
+  /* تنقل سريع — روابط الناف بار */
+  .nav-link {
+    @apply transition-all duration-200 ease-out;
+  }
+  .nav-link:hover {
+    @apply opacity-100;
+  }
+  .nav-link-active {
+    @apply bg-white/20 text-white font-medium;
+  }
+
+  /* RTL — تحسين العرض للعربية */
+  [dir="rtl"] {
+    text-align: right;
+  }
+  [dir="rtl"] .prose,
+  [dir="rtl"] .prose-sm {
+    text-align: right;
+  }
+  [dir="rtl"] .prose p,
+  [dir="rtl"] .prose li {
+    text-align: inherit;
+  }
+  /* خط عربي أوضح إن وُجد */
+  [dir="rtl"] body {
+    font-family: ui-sans-serif, system-ui, "Segoe UI", "Noto Sans Arabic", "Tajawal", "Cairo", sans-serif;
+  }
+}
