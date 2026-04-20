@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
 
@@ -10,14 +11,21 @@ const REVALIDATE_CATEGORIES = 300;
 
 async function getPublishedProductsUncached(opts?: {
   categorySlug?: string;
+  q?: string;
   limit?: number;
   offset?: number;
 }) {
-  const where: { published: boolean; category?: { slug: string } } = {
-    published: true,
-  };
+  const where: Prisma.ProductWhereInput = { published: true };
   if (opts?.categorySlug) {
     where.category = { slug: opts.categorySlug };
+  }
+  const searchTerm = opts?.q?.trim();
+  if (searchTerm) {
+    where.OR = [
+      { name: { contains: searchTerm, mode: "insensitive" } },
+      { shortDescription: { contains: searchTerm, mode: "insensitive" } },
+      { description: { contains: searchTerm, mode: "insensitive" } },
+    ];
   }
   const [products, total] = await Promise.all([
     prisma.product.findMany({
@@ -43,15 +51,34 @@ async function getPublishedProductsUncached(opts?: {
 
 export async function getPublishedProducts(opts?: {
   categorySlug?: string;
+  q?: string;
   limit?: number;
   offset?: number;
 }) {
-  const key = ["products", opts?.categorySlug ?? "all", String(opts?.limit ?? 24), String(opts?.offset ?? 0)];
+  const key = ["products", opts?.categorySlug ?? "all", opts?.q ?? "", String(opts?.limit ?? 24), String(opts?.offset ?? 0)];
   return unstable_cache(
     () => getPublishedProductsUncached(opts),
     key,
     { revalidate: REVALIDATE_PRODUCTS, tags: [CACHE_TAG_PRODUCTS] }
   )();
+}
+
+export async function getProductsByIds(ids: string[]) {
+  if (!ids.length) return [];
+  const uniq = Array.from(new Set(ids));
+  return prisma.product.findMany({
+    where: { id: { in: uniq }, published: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      imageUrl: true,
+      type: true,
+      categoryId: true,
+      category: { select: { id: true, name: true, slug: true } },
+    },
+  });
 }
 
 export async function getProductBySlug(slug: string) {
