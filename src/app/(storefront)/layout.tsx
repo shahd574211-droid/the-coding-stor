@@ -5,7 +5,6 @@ import { Footer } from "@/components/footer";
 import { StorefrontNav } from "@/components/storefront-nav";
 import { getLocale } from "@/lib/i18n/server";
 import { getCategories } from "@/server/actions/products";
-import { getCartCount } from "@/server/actions/cart";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 
 export const dynamic = "force-dynamic";
@@ -16,13 +15,12 @@ export default async function StorefrontLayout({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const [categoriesResult, cartCountResult, userResult] = await Promise.allSettled([
+  const [categoriesResult, userResult] = await Promise.allSettled([
     getCategories(),
-    getCartCount(),
     getCurrentUser(),
   ]);
   const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
-  const cartCount = cartCountResult.status === "fulfilled" ? cartCountResult.value : 0;
+  const cartCount = 0;
   const user = userResult.status === "fulfilled" ? userResult.value : null;
   const isAdmin = user?.isAdmin ?? false;
 
