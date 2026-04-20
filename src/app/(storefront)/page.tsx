@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { getPublishedProducts } from "@/server/actions/products";
-import { FavoriteButton } from "@/components/favorite-button";
-import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatPriceInUserCurrency } from "@/lib/currency";
 import Image from "next/image";
@@ -9,7 +7,6 @@ import { getLocale } from "@/lib/i18n/server";
 import { getTranslations, t as tFn } from "@/lib/i18n/server";
 import { getCurrency } from "@/lib/currency/server";
 import { getGlobalDiscountPercent, getPriceAfterDiscount } from "@/lib/discount";
-import { HeroCarousel } from "@/components/hero-carousel";
 
 export default async function HomePage() {
   const [locale, currency] = await Promise.all([getLocale(), getCurrency()]);
@@ -24,30 +21,6 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-10">
-      {/* قسم البطل: كورسول يسار، النص يمين */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start py-8 lg:py-10 text-start rtl:text-end">
-        {/* كورسول الصور — يسار في كلا الاتجاهين */}
-        <div className="order-1 rtl:order-2">
-          <HeroCarousel
-            images={[
-              { src: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=85", alt: "متجر" },
-              { src: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=85", alt: "تسوق" },
-              { src: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=900&q=85", alt: "عروض" },
-              { src: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=900&q=85", alt: "تشكيلة منتجات" },
-            ]}
-          />
-        </div>
-        {/* نص الهيرو — جملة واحدة منسقة */}
-        <div className="order-2 rtl:order-1 flex flex-col gap-3 rtl:text-right text-start max-w-lg pt-2 lg:pt-4">
-          <p className="hero-subtitle">
-            {t("home.hero.subtitle")}
-          </p>
-          <p className="hero-body">
-            {t("home.hero.body")}
-          </p>
-        </div>
-      </section>
-
       <section className="space-y-6 text-start">
         <div className="flex items-center justify-between flex-wrap gap-3 rtl:flex-row-reverse">
           <h2 className="text-xl font-semibold text-primary-on-dark">{t("home.featured")}</h2>
@@ -103,9 +76,7 @@ export default async function HomePage() {
                       <span className="font-bold text-primary-on-dark text-base">{formatPriceInUserCurrency(p.price, currency, locale)}</span>
                     )}
                   </div>
-                  <AddToCartButton productId={p.id} variant="accent" size="sm" className="rounded-xl w-full sm:w-auto" />
                 </CardFooter>
-                <FavoriteButton productId={p.id} size="sm" />
               </Card>
             );
           })}
