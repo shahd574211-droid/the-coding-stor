@@ -4,8 +4,7 @@ import DynamicBackground from "@/components/background/DynamicBackground";
 import { Footer } from "@/components/footer";
 import { StorefrontNav } from "@/components/storefront-nav";
 import { getLocale } from "@/lib/i18n/server";
-import { getCategories } from "@/server/actions/products";
-import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { getCurrency } from "@/lib/currency/server";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +13,7 @@ export default async function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
-  const [categoriesResult, userResult] = await Promise.allSettled([
-    getCategories(),
-    getCurrentUser(),
-  ]);
-  const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
-  const cartCount = 0;
-  const user = userResult.status === "fulfilled" ? userResult.value : null;
-  const isAdmin = user?.isAdmin ?? false;
+  const [locale, currency] = await Promise.all([getLocale(), getCurrency()]);
 
   return (
     <DynamicBackground>
@@ -33,12 +24,11 @@ export default async function StorefrontLayout({
         Skip to content
       </a>
       <header className="glass-nav-on-dark sticky top-0 z-50 w-full border-b border-white/10">
-        <div className="container flex h-14 items-center gap-4 px-4 max-w-6xl mx-auto">
-          <StorefrontNav categories={categories} cartCount={cartCount} isAdmin={isAdmin} />
+        <div className="container flex h-14 items-center justify-between gap-3 px-4 rtl:flex-row-reverse max-w-6xl mx-auto">
           <Link
             href="/"
             prefetch
-            className="flex items-center gap-2.5 font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80 logo-wrap shrink-0 order-last"
+            className="flex items-center gap-2.5 font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80 logo-wrap shrink-0"
           >
             <Image
               src="/logos/logo.png"
@@ -54,12 +44,13 @@ export default async function StorefrontLayout({
               the coding
             </span>
           </Link>
+          <StorefrontNav initialCurrency={currency} />
         </div>
       </header>
       <main id="main" className="flex-1 container py-6 px-4 max-w-6xl mx-auto min-h-[60vh]">
         {children}
       </main>
-      <Footer locale={locale} isAdmin={isAdmin} />
+      <Footer locale={locale} />
     </DynamicBackground>
   );
 }
