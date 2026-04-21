@@ -8,6 +8,16 @@ import { getTranslations, t as tFn } from "@/lib/i18n/server";
 import { getCurrency } from "@/lib/currency/server";
 import { getGlobalDiscountPercent, getPriceAfterDiscount } from "@/lib/discount";
 
+const homeCategoryCards = [
+  { title: "عناية ب البشرة", image: "https://images.unsplash.com/photo-1571781565036-d3f759be73e4?w=900&q=85", href: "/skin-care" },
+  { title: "عناية بالشعر", image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900&q=85" },
+  { title: "عناية ب الجسم", image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=900&q=85" },
+  { title: "منكير", image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=900&q=85" },
+  { title: "اكسسوار", image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=900&q=85" },
+  { title: "اكسسوار شعر", image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=900&q=85" },
+  { title: "ماهو جدييد", image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=85" },
+];
+
 export default async function HomePage() {
   const [locale, currency] = await Promise.all([getLocale(), getCurrency()]);
   const productsResult = await getPublishedProducts({ limit: 8 }).catch(() => ({
@@ -21,6 +31,35 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-10">
+      <section className="space-y-5 text-start">
+        <h2 className="text-xl font-semibold text-primary-on-dark">التصنيفات</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {homeCategoryCards.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href ?? `/products?q=${encodeURIComponent(item.title)}`}
+              prefetch
+              className="group block"
+            >
+              <article className="overflow-hidden rounded-2xl border border-white/20 bg-black/20 transition-all duration-200 hover:border-white/35 hover:shadow-xl">
+                <div className="relative aspect-square">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover transition-transform duration-200 ease-out group-hover:scale-105"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                  />
+                </div>
+                <div className="px-3 py-2 text-center">
+                  <h3 className="text-sm sm:text-base font-semibold text-white">{item.title}</h3>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="space-y-6 text-start">
         <div className="flex items-center justify-between flex-wrap gap-3 rtl:flex-row-reverse">
           <h2 className="text-xl font-semibold text-primary-on-dark">{t("home.featured")}</h2>

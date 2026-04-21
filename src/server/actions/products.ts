@@ -27,26 +27,30 @@ async function getPublishedProductsUncached(opts?: {
       { description: { contains: searchTerm, mode: "insensitive" } },
     ];
   }
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        imageUrl: true,
-        type: true,
-        categoryId: true,
-        category: { select: { id: true, name: true, slug: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: opts?.limit ?? 24,
-      skip: opts?.offset ?? 0,
-    }),
-    prisma.product.count({ where }),
-  ]);
-  return { products, total };
+  try {
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          imageUrl: true,
+          type: true,
+          categoryId: true,
+          category: { select: { id: true, name: true, slug: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: opts?.limit ?? 24,
+        skip: opts?.offset ?? 0,
+      }),
+      prisma.product.count({ where }),
+    ]);
+    return { products, total };
+  } catch {
+    return { products: [], total: 0 };
+  }
 }
 
 export async function getPublishedProducts(opts?: {
@@ -66,54 +70,66 @@ export async function getPublishedProducts(opts?: {
 export async function getProductsByIds(ids: string[]) {
   if (!ids.length) return [];
   const uniq = Array.from(new Set(ids));
-  return prisma.product.findMany({
-    where: { id: { in: uniq }, published: true },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      price: true,
-      imageUrl: true,
-      type: true,
-      categoryId: true,
-      category: { select: { id: true, name: true, slug: true } },
-    },
-  });
+  try {
+    return prisma.product.findMany({
+      where: { id: { in: uniq }, published: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        imageUrl: true,
+        type: true,
+        categoryId: true,
+        category: { select: { id: true, name: true, slug: true } },
+      },
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function getProductBySlug(slug: string) {
-  return prisma.product.findFirst({
-    where: { slug, published: true },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      shortDescription: true,
-      price: true,
-      compareAtPrice: true,
-      type: true,
-      imageUrl: true,
-      images: true,
-      stock: true,
-      categoryId: true,
-      category: { select: { id: true, name: true, slug: true } },
-      digitalAssets: { orderBy: { sortOrder: "asc" }, select: { id: true, fileName: true, filePath: true, mimeType: true, sortOrder: true } },
-    },
-  });
+  try {
+    return prisma.product.findFirst({
+      where: { slug, published: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        shortDescription: true,
+        price: true,
+        compareAtPrice: true,
+        type: true,
+        imageUrl: true,
+        images: true,
+        stock: true,
+        categoryId: true,
+        category: { select: { id: true, name: true, slug: true } },
+        digitalAssets: { orderBy: { sortOrder: "asc" }, select: { id: true, fileName: true, filePath: true, mimeType: true, sortOrder: true } },
+      },
+    });
+  } catch {
+    return null;
+  }
 }
 
 async function getCategoriesUncached() {
-  return prisma.category.findMany({
-    where: { parentId: null },
-    orderBy: { sortOrder: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      children: { orderBy: { sortOrder: "asc" }, select: { id: true, name: true, slug: true, sortOrder: true } },
-    },
-  });
+  try {
+    return prisma.category.findMany({
+      where: { parentId: null },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        children: { orderBy: { sortOrder: "asc" }, select: { id: true, name: true, slug: true, sortOrder: true } },
+      },
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function getCategories() {
